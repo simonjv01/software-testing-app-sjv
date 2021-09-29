@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
@@ -25,13 +26,20 @@ class CustomerRepositoryTest {
     @Test
     void itShouldSaveCustomer() {
         // Given
-        UUID id = UUID.randomUUID();
-       Customer customer = new Customer(UUID.randomUUID(), "Abel", "0000");
+       UUID id = UUID.randomUUID();
+       Customer customer = new Customer(id, "Abel", "0000");
         // When
         underTest.save(customer);
         // Then
-        assertNotNull(customer);
+
         Optional<Customer> optionalCustomer = underTest.findById(id);
+        assertThat(optionalCustomer)
+                .isPresent()
+                .hasValueSatisfying(c -> {
+                    assertThat(c.getId()).isEqualTo(id);
+                    assertThat(c.getName()).isEqualTo("Abel");
+                    assertThat(c.getPhoneNumber()).isEqualTo("0000");
+                });
     }
 
 
